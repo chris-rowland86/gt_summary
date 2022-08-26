@@ -1,0 +1,144 @@
+---
+title: "gt summary features"
+author: "Chris Rowland"
+format:
+  html:
+    toc: true
+    toc-location: left
+    toc-title: Contents
+    number-sections: true
+    html-math-method: katex
+    css: styles.css
+    code-fold: true
+execute: 
+  eval: true
+  echo: true
+  output: true
+  warning: true
+  error: true
+  freeze: true
+---
+
+```{r setup}
+#| include: false
+library(gtsummary)
+library(gt)
+```
+
+# Dissecting "strata"
+
+## Example 2 from Reference Doc
+Started with "Example 2" tabel from:
+[https://www.danieldsjoberg.com/gtsummary/reference/tbl_strata.html](https://www.danieldsjoberg.com/gtsummary/reference/tbl_strata.html)
+
+```{r}
+#| label: reference-table
+
+tbl_strata_response_by_grade <-
+  trial %>%
+  select(grade, response) %>%
+  mutate(grade = paste("Grade", grade)) %>%
+  tbl_strata2(
+    strata = grade,
+    .tbl_fun =
+      ~.x %>%
+      tbl_summary(
+        label = list(response = .y),
+        missing = "no",
+        statistic = response ~ "{p}%"
+      ) %>%
+      add_ci(pattern = "{stat} ({ci})") %>%
+     modify_header(stat_0 = "**Rate (95% CI)**") %>%
+     modify_footnote(stat_0 = NA),
+    .combine_with = "tbl_stack",
+    .combine_args = list(group_header = NULL),
+    .quiet = TRUE
+  ) %>%
+  modify_caption("**Response Rate by Grade**") %>%
+  as_gt()
+
+tbl_strata_response_by_grade
+```
+
+## What happens if you pass grade to "by" argument as opposed to strata?
+
+The response rates (%'s) and 95% CIs are the SAME so calculations did not change, BUT the grades are split across cols instead of rows strata definitely provides a cleaner presentation of the data
+
+```{r}
+#| label: using-by-instead-of-strata
+
+tbl_summary_response_by_grade <-
+  trial %>%
+  select(grade, response) %>%
+  mutate(grade = paste("Grade", grade)) %>%
+      tbl_summary(
+        by = grade,
+        missing = "no",
+        statistic = response ~ "{p}%"
+      ) %>%
+      add_ci(pattern = "{stat} ({ci})") %>%
+     modify_header(stat_0 = "**Rate (95% CI)**") %>%
+     modify_footnote(stat_0 = NA)  %>%
+  modify_caption("**Response Rate by Grade**")
+
+tbl_summary_response_by_grade
+```
+
+## What happens if you remove label = list(response = .y) ?
+Removing that argument returns a table where "Tumor Response" is repeated for all rows, and grade is NOT reported needed that argument to pass the strata levels to the row labels THIS is what tbl_strata2 accomplishes that tbl_strata cannot
+```{r}
+#| label: no-label
+
+tbl_strata_response_by_grade_no_label <-
+  trial %>%
+  select(grade, response) %>%
+  mutate(grade = paste("Grade", grade)) %>%
+  tbl_strata2(
+    strata = grade,
+    .tbl_fun =
+      ~.x %>%
+      tbl_summary(
+        missing = "no",
+        statistic = response ~ "{p}%"
+      ) %>%
+      add_ci(pattern = "{stat} ({ci})") %>%
+     modify_header(stat_0 = "**Rate (95% CI)**") %>%
+     modify_footnote(stat_0 = NA),
+    .combine_with = "tbl_stack",
+    .combine_args = list(group_header = NULL),
+    .quiet = TRUE
+  ) %>%
+  modify_caption("**Response Rate by Grade**")
+
+tbl_strata_response_by_grade_no_label
+```
+
+## Strata 1 vs Strata 2
+Below code returns a ERROR!!!
+Basically it canNOT find the "label"
+This is because tbl_strata2() passess BOTH the stratified data frame
+AND the strata level, which is the "y" in the label = list(response = .y)
+
+```{r}
+tbl_strata_response_by_grade_strata1 <-
+  trial %>%
+  select(grade, response) %>%
+  mutate(grade = paste("Grade", grade)) %>%
+  tbl_strata(
+    strata = grade,
+    .tbl_fun =
+      ~.x %>%
+      tbl_summary(
+        label = list(response = .y),
+        missing = "no",
+        statistic = response ~ "{p}%"
+      ) %>%
+      add_ci(pattern = "{stat} ({ci})") %>%
+     modify_header(stat_0 = "**Rate (95% CI)**") %>%
+     modify_footnote(stat_0 = NA),
+    .combine_with = "tbl_stack",
+    .combine_args = list(group_header = NULL),
+    .quiet = TRUE
+  ) %>%
+  modify_caption("**Response Rate by Grade**")
+```

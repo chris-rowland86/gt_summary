@@ -1,0 +1,89 @@
+---
+title: "gt summary features"
+author: "Chris Rowland"
+editor: source
+format: 
+  revealjs: 
+    theme: dark
+    transition: fade
+    slide-number: true
+    chalkboard: true
+execute:
+  echo: true
+  output: asis
+  freeze: auto
+cache: true
+---
+
+```{r setup}
+#| include: false
+library(gtsummary)
+library(gt)
+
+# Pulled these functions from:
+# https://github.com/ddsjoberg/clinical-reporting-gtsummary-rmed/blob/main/slides/00-setup.qmd
+
+# define a method for objects of the class gtsummary
+knit_print.gtsummary <- function(x, ...) {
+  gtsummary::as_gt(x) |> gt::as_raw_html()
+}
+
+# define a method for objects of the class gt
+knit_print.gt_tbl <- function(x, ...) {
+  gt::as_raw_html(x)
+}
+
+# register the gtsummary method
+registerS3method("knit_print", "gtsummary", knit_print.gtsummary)
+
+# register the gt method
+registerS3method("knit_print", "gt_tbl", knit_print.gt_tbl)
+
+# More info here:
+# https://cran.r-project.org/web/packages/knitr/vignettes/knit_print.html
+```
+
+## Example from Reference Doc
+
+::: columns
+::: {.column width="50%"}
+```{r}
+#| echo: true
+#| results: false
+#| message: false
+#| warning: false
+#| label: tbl_strata_response_by_grade
+tbl_strata_response_by_grade <-
+  trial %>%
+  select(grade, response) %>%
+  mutate(grade = paste("Grade", grade)) %>%
+  tbl_strata2(
+    strata = grade,
+    .tbl_fun =
+      ~.x %>%
+      tbl_summary(
+        label = list(response = .y),
+        missing = "no",
+        statistic = response ~ "{p}%"
+      ) %>%
+      add_ci(pattern = "{stat} ({ci})") %>%
+     modify_header(stat_0 = "**Rate (95% CI)**") %>%
+     modify_footnote(stat_0 = NA),
+    .combine_with = "tbl_stack",
+    .combine_args = list(group_header = NULL),
+    .quiet = TRUE
+  ) %>%
+  modify_caption("**Response Rate by Grade**") %>%
+  as_gt()
+
+tbl_strata_response_by_grade
+```
+:::
+
+::: {.column width="50%"}
+```{r}
+#| echo: false
+tbl_strata_response_by_grade
+```
+:::
+:::
