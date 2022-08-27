@@ -4,10 +4,11 @@ author: "Chris Rowland"
 editor: source
 format: 
   revealjs: 
-    theme: dark
+    theme: simple
     transition: fade
     slide-number: true
     chalkboard: true
+    preview-links: true
 execute:
   echo: true
   output: asis
@@ -20,27 +21,6 @@ cache: true
 library(gtsummary)
 library(gt)
 
-# Pulled these functions from:
-# https://github.com/ddsjoberg/clinical-reporting-gtsummary-rmed/blob/main/slides/00-setup.qmd
-
-# define a method for objects of the class gtsummary
-knit_print.gtsummary <- function(x, ...) {
-  gtsummary::as_gt(x) |> gt::as_raw_html()
-}
-
-# define a method for objects of the class gt
-knit_print.gt_tbl <- function(x, ...) {
-  gt::as_raw_html(x)
-}
-
-# register the gtsummary method
-registerS3method("knit_print", "gtsummary", knit_print.gtsummary)
-
-# register the gt method
-registerS3method("knit_print", "gt_tbl", knit_print.gt_tbl)
-
-# More info here:
-# https://cran.r-project.org/web/packages/knitr/vignettes/knit_print.html
 ```
 
 ## Example from Reference Doc
@@ -48,11 +28,6 @@ registerS3method("knit_print", "gt_tbl", knit_print.gt_tbl)
 ::: columns
 ::: {.column width="50%"}
 ```{r}
-#| echo: true
-#| results: false
-#| message: false
-#| warning: false
-#| label: tbl_strata_response_by_grade
 tbl_strata_response_by_grade <-
   trial %>%
   select(grade, response) %>%
@@ -75,12 +50,13 @@ tbl_strata_response_by_grade <-
   ) %>%
   modify_caption("**Response Rate by Grade**") %>%
   as_gt()
-
-tbl_strata_response_by_grade
 ```
 :::
 
 ::: {.column width="50%"}
+Started with "Example 2" tabel from:
+[https://www.danieldsjoberg.com/gtsummary/reference/tbl_strata.html](https://www.danieldsjoberg.com/gtsummary/reference/tbl_strata.html)
+
 ```{r}
 #| echo: false
 tbl_strata_response_by_grade
