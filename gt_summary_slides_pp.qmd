@@ -45,13 +45,13 @@ tbl_strata_response_by_grade <-
   modify_caption("**Response Rate by Grade**") %>%
   as_gt()
 
-tbl_strata_response_by_grade
 ```
 :::
 
 ::: {.column width="50%"}
 ```{r}
 #| echo: false
+
 tbl_strata_response_by_grade
 ```
 :::

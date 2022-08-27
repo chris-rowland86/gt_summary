@@ -13,7 +13,6 @@ execute:
   echo: true
   output: asis
   freeze: auto
-cache: true
 ---
 
 ```{r setup}
