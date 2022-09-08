@@ -1,16 +1,25 @@
 ---
-title: "gt summary features"
+title: "UTI Analysis"
 author: "Chris Rowland"
 format:
   html:
+    self-contained: true
     toc: true
     toc-location: left
     toc-title: Contents
     number-sections: true
+    page-layout: full
+    code-fold: true
+    fig-align: center
+    fig-cap-location: top
+    fig-width: 8
+    fig-height: 5
+    fig-format: retina
+    fig-dpi: 300
     html-math-method: katex
     css: styles.css
-    code-fold: true
-execute: 
+    
+execute:
   eval: true
   echo: true
   output: true
